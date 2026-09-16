@@ -9,7 +9,6 @@ export function isWikimediaThumbnail(src: string) {
   return THUMBNAIL_URL.test(src);
 }
 
-
 export function getWikimediaThumbnail(src: string, width: number) {
   const standardWidth =
     WIKIMEDIA_THUMBNAIL_WIDTHS.find((candidate) => candidate >= width) ??

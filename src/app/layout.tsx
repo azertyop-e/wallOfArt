@@ -3,8 +3,8 @@ import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "lenis/dist/lenis.css";
 import "./globals.css";
-import { SmoothScroll } from "@/components/providers/smooth-scroll";
 import { Navbar } from "@/components/navBar";
+import { SmoothScroll } from "@/components/providers/smooth-scroll";
 
 const clashDisplay = localFont({
   src: [

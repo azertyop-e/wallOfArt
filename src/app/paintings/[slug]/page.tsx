@@ -19,7 +19,7 @@ export async function generateStaticParams() {
 
 function stripHtml(html: string) {
   return html
-    .replace(/<[^>]+>/g, " ") 
+    .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }

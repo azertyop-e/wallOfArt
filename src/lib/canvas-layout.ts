@@ -29,8 +29,8 @@ function shuffle<T>(array: T[], random: () => number) {
   return copy;
 }
 
-const between = (random: () => number, min: number, max: number) => min + random() * (max - min);
-
+const between = (random: () => number, min: number, max: number) =>
+  min + random() * (max - min);
 
 export function createCanvasLayout(
   artworks: Artwork[],
