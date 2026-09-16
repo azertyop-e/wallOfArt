@@ -15,7 +15,7 @@ export function HomeArtwork({ artwork }: HomeArtworkProps) {
         href={`/paintings/${artwork.slug}`}
         className="group flex max-w-full flex-col items-center gap-2 outline-offset-4"
       >
-        <div data-hero-work className="max-w-full overflow-clip">
+        <div data-artwork-frame className="max-w-full overflow-clip">
           <ArtworkImage
             src={artwork.image}
             alt={`${artwork.title}${artwork.artist ? `, ${artwork.artist}` : ""}`}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { revealArtworks } from "@/lib/artwork-reveal";
 import { gsap, useGSAP } from "@/lib/gsap";
 
 const IMAGE_ZOOM = 1.25;
@@ -25,41 +26,30 @@ export function HeroIntro({ children, className }: HeroIntroProps) {
         return;
       }
 
-      const works = gsap.utils.toArray<HTMLElement>("[data-hero-work]");
-      const images = works.map((work) => work.querySelector("img"));
-      const stagger = { each: 0.08, from: "center" } as const;
+      const select = gsap.utils.selector(root);
 
-      gsap
+      const timeline = gsap
         .timeline({ defaults: { ease: "expo.out" } })
         .from("[data-hero-char]", {
           yPercent: 110,
           duration: 1.6,
           stagger: 0.04,
-        })
-        .fromTo(
-          works,
-          { clipPath: "inset(100% 0% 0% 0%)" },
-          {
-            clipPath: "inset(0% 0% 0% 0%)",
-            duration: 1.6,
-            stagger,
-            clearProps: "clipPath",
-          },
-          0.3,
-        )
-        .fromTo(
-          images,
-          { scale: 1.4 },
-          { scale: IMAGE_ZOOM, duration: 2, stagger },
-          0.3,
-        )
-        .from(
-          "[data-hero-fade]",
-          { autoAlpha: 0, y: 12, duration: 1.2, stagger: 0.1 },
-          0.9,
-        );
+        });
 
-      const frames = gsap.utils.toArray<HTMLElement>("[data-hero-drift]");
+      revealArtworks(select("[data-artwork-frame]"), {
+        timeline,
+        position: 0.3,
+        // The frame crops the image on purpose: the drift pans inside of it.
+        zoom: IMAGE_ZOOM,
+      });
+
+      timeline.from(
+        "[data-hero-fade]",
+        { autoAlpha: 0, y: 12, duration: 1.2, stagger: 0.1 },
+        0.9,
+      );
+
+      const frames = select<HTMLElement>("[data-hero-drift]");
       if (!frames.length || !window.matchMedia("(pointer: fine)").matches) {
         return;
       }
