@@ -18,6 +18,7 @@
   --grid-col: calc((100vw - var(--spacing-gutter) * 7) / 6);
   --spacing-header: calc(var(--spacing-gutter) * 2 + 0.75rem);
   --spacing-page-top: calc(var(--spacing-header) + 1.25rem);
+  --spacing-page-bottom: calc(var(--spacing-gutter) * 2 + 2.25rem);
 }
 
 @custom-variant wide (@media (min-width: 100rem) and (min-aspect-ratio: 21 / 9));

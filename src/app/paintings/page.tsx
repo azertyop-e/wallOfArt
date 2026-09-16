@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { InfiniteCanvas } from "@/components/infinite-canvas";
 import { PaintingFilters } from "@/components/painting-filters";
+import { SiteSearch } from "@/components/site-search";
 import { getArtworks } from "@/lib/api";
 import { createCanvasLayout } from "@/lib/canvas-layout";
 import {
@@ -44,16 +45,21 @@ export default async function PaintingsPage({
         </p>
       )}
 
-      <div className="pointer-events-none fixed bottom-0 left-0 grid w-screen grid-cols-2 items-end gap-x-gutter gap-y-3 p-gutter text-[10px] leading-3 font-medium text-white uppercase mix-blend-difference md:grid-cols-[1fr_auto_1fr]">
+      <div className="pointer-events-none fixed bottom-0 left-0 z-50 grid w-screen grid-cols-2 items-end gap-x-gutter gap-y-4 p-gutter text-[10px] leading-3 font-medium text-white uppercase mix-blend-difference md:grid-cols-[1fr_auto_1fr]">
+        <SiteSearch className="pointer-events-auto col-span-2 justify-self-center md:col-span-1 md:col-start-2 md:row-start-1" />
+
         <PaintingFilters
           groups={getFilterGroups(artworks, filters)}
-          className="pointer-events-auto col-span-2 md:col-span-1 md:col-start-2 md:row-start-1"
+          className="pointer-events-auto md:col-start-1 md:row-start-1 md:justify-self-start"
         />
-        <span className="md:col-start-1 md:row-start-1">Drag to explore</span>
-        <span className="justify-self-end text-muted md:col-start-3 md:row-start-1">
-          {filtered.length === artworks.length
-            ? `${artworks.length} artworks`
-            : `${filtered.length} / ${artworks.length} artworks`}
+
+        <span className="justify-self-end text-right md:col-start-3 md:row-start-1">
+          <span className="hidden md:inline">Drag to explore — </span>
+          <span className="text-muted">
+            {filtered.length === artworks.length
+              ? `${artworks.length} artworks`
+              : `${filtered.length} / ${artworks.length} artworks`}
+          </span>
         </span>
       </div>
     </main>
