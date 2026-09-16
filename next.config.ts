@@ -3,6 +3,7 @@ import { WIKIMEDIA_THUMBNAIL_WIDTHS } from "./src/lib/wikimedia";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  devIndicators: false,
   images: {
     // Artwork images never change behind a given URL: keep optimized copies for
     // 31 days instead of 4 hours to avoid re-downloading them from the hosts.
