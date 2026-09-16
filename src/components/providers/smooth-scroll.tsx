@@ -7,7 +7,6 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<LenisRef>(null);
 
-  // Drive Lenis from GSAP's ticker so Lenis and ScrollTrigger share one RAF loop.
   useEffect(() => {
     const update = (time: number) => {
       lenisRef.current?.lenis?.raf(time * 1000);

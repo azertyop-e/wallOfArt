@@ -25,7 +25,6 @@ const matches = (artwork: Artwork, filters: Filters, ignored?: FilterKey) =>
     (key) => key === ignored || !filters[key] || artwork[key] === filters[key],
   );
 
-/** Keeps only the filters whose value exists in the collection. */
 export function parseFilters(
   artworks: Artwork[],
   searchParams: Record<string, string | string[] | undefined>,

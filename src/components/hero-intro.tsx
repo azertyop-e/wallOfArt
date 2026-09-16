@@ -6,11 +6,7 @@ import { gsap, useGSAP } from "@/lib/gsap";
 const IMAGE_ZOOM = 1.25;
 const FRAME_SHIFT = 2;
 const IMAGE_SHIFT = 15;
-// Maximum tilt of the frames towards the mouse, in degrees at full depth.
 const FRAME_TILT = 8;
-// Depth of each painting, left to right. Edge paintings stay shallow so they
-// don't leave the screen, and neighbours never differ by more than 0.3, so
-// they move at most 0.3 × 2 = 0.6 gutter towards each other.
 const DEPTHS = [0.35, 0.65, 0.5, 0.8, 0.6, 0.35];
 
 type HeroIntroProps = {
@@ -18,17 +14,11 @@ type HeroIntroProps = {
   className?: string;
 };
 
-// Entrance animation of the home hero. Children are server-rendered and tagged
-// with data attributes: `data-hero-char` (title letters), `data-hero-wall` (the
-// paintings grid), `data-hero-work` (painting frames, clipping their image),
-// `data-hero-drift` (layers moved by the mouse parallax) and `data-hero-fade`
-// (labels). Paintings are rendered by `HomeArtwork`.
 export function HeroIntro({ children, className }: HeroIntroProps) {
   const root = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
-      // The hero is hidden in CSS until now, so nothing flashes before hydration.
       gsap.set(root.current, { autoAlpha: 1 });
 
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -69,9 +59,6 @@ export function HeroIntro({ children, className }: HeroIntroProps) {
           0.9,
         );
 
-      // Mouse parallax, only with a real pointer: each frame moves against the
-      // mouse at its own depth and tilts towards it, while its image slides the
-      // other way inside the frame, like a view through a window.
       const frames = gsap.utils.toArray<HTMLElement>("[data-hero-drift]");
       if (!frames.length || !window.matchMedia("(pointer: fine)").matches) {
         return;
@@ -95,10 +82,7 @@ export function HeroIntro({ children, className }: HeroIntroProps) {
         };
       });
 
-      // `offsetX` and `offsetY` go from -1 to 1 across the viewport.
       const move = (offsetX: number, offsetY: number) => {
-        // The gutter is fluid (a share of the viewport width): read it from the
-        // wall's grid gap so the travel always matches the space between paintings.
         const wall = frames[0].closest<HTMLElement>("[data-hero-wall]");
         const gutter = wall
           ? Number.parseFloat(getComputedStyle(wall).columnGap)
@@ -121,7 +105,6 @@ export function HeroIntro({ children, className }: HeroIntroProps) {
         );
       };
 
-      // Back to rest when the mouse leaves the window.
       const onMouseLeave = () => move(0, 0);
 
       window.addEventListener("pointermove", onPointerMove);

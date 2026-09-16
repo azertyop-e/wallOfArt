@@ -14,27 +14,17 @@
 
 @theme {
   --color-muted: #828282;
-
-  /* Fluid 6-column grid, designed on a 1500px canvas: 32px gutters, 7 gutters + 6 columns = 100vw. */
   --spacing-gutter: calc(32 / 1500 * 100vw);
   --grid-col: calc((100vw - var(--spacing-gutter) * 7) / 6);
-
-  /* Fixed site header: gutter padding + one 12px line. It grows with the viewport width. */
   --spacing-header: calc(var(--spacing-gutter) * 2 + 0.75rem);
-  /* Top padding of a page, clearing the header. Equals 96px on the 1500px canvas. */
   --spacing-page-top: calc(var(--spacing-header) + 1.25rem);
 }
 
-/*
- * Ultra-wide viewports (21:9, 32:9). The grid scales with the width, so on these
- * screens vw-based elements outgrow the viewport height: layouts add columns.
- */
 @custom-variant wide (@media (min-width: 100rem) and (min-aspect-ratio: 21 / 9));
 @custom-variant ultrawide (@media (min-width: 100rem) and (
     min-aspect-ratio: 32 / 9
   ));
 
-/* Width spanning N columns and the N-1 gutters between them. */
 @utility span-w-* {
   width: calc(
     var(--grid-col) *

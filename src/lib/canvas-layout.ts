@@ -72,8 +72,6 @@ export function createCanvasLayout(
       slug: artwork.slug,
       title: artwork.title,
       image: artwork.image,
-      // A painting is at most 0.8 cell wide or tall and moves at most 0.1 cell
-      // from the center, so it always stays inside its cell.
       x: column + 0.5 + between(random, -0.1, 0.1),
       y: row + 0.5 + (column % 2) * 0.5 + between(random, -0.1, 0.1),
       width: between(random, 0.55, 0.8),

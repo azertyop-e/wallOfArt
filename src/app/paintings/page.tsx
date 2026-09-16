@@ -10,10 +10,6 @@ import {
   parseFilters,
 } from "@/lib/filters";
 
-// Filters live in `searchParams`, so the page is rendered on each request (SSR)
-// while the artworks fetch itself stays cached for an hour (see `getArtworks`).
-// The random layout is computed on the server, so server and client HTML match.
-
 export async function generateMetadata({
   searchParams,
 }: PageProps<"/paintings">): Promise<Metadata> {
