@@ -1,17 +1,23 @@
 export const WALL_TITLE = "Wall of Art";
 
+type WallTitleProps = {
+  title?: string;
+  className?: string;
+};
+
 /**
- * The big « Wall of Art » title, words spread across the full width. Each
- * letter (`data-title-char`) sits in its own mask so it can slide in.
+ * The big « Wall of Art » title (or any other `title`), words spread across the
+ * full width. Each letter (`data-title-char`) sits in its own mask so it can
+ * slide in.
  */
-export function WallTitle({ className }: { className?: string }) {
+export function WallTitle({ title = WALL_TITLE, className }: WallTitleProps) {
   return (
     <span
       className={`block text-[14vw] leading-[0.8] font-medium tracking-tight uppercase ${className ?? ""}`}
     >
-      <span className="sr-only">{WALL_TITLE}</span>
+      <span className="sr-only">{title}</span>
       <span aria-hidden className="flex justify-between">
-        {WALL_TITLE.split(" ").map((word) => (
+        {title.split(" ").map((word) => (
           <span key={word} className="flex overflow-clip pt-[0.04em]">
             {[...word].map((char, index) => (
               <span
