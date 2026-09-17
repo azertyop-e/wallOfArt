@@ -4,6 +4,10 @@ import localFont from "next/font/local";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 import { Navbar } from "@/components/navBar";
+import {
+  PageTransition,
+  PageTransitionContent,
+} from "@/components/providers/page-transition";
 import { SmoothScroll } from "@/components/providers/smooth-scroll";
 
 const clashDisplay = localFont({
@@ -31,8 +35,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${clashDisplay.variable} ${geistMono.variable} antialiased`}
     >
       <body>
-        <Navbar />
-        <SmoothScroll>{children}</SmoothScroll>
+        <PageTransition>
+          <Navbar />
+          <SmoothScroll>
+            <PageTransitionContent>{children}</PageTransitionContent>
+          </SmoothScroll>
+        </PageTransition>
       </body>
     </html>
   );

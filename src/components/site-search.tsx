@@ -1,10 +1,10 @@
 "use client";
 
 import { useLenis } from "lenis/react";
-import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ArtworkCard } from "@/components/artwork-card";
+import { usePageTransition } from "@/components/providers/page-transition";
 import type { Artwork } from "@/lib/api";
 import {
   HIDE_EASE,
@@ -60,7 +60,7 @@ const settle = (rows: HTMLElement[]) => {
 };
 
 export function SiteSearch({ className }: { className?: string }) {
-  const router = useRouter();
+  const { navigate } = usePageTransition();
   const lenis = useLenis();
 
   const field = useRef<HTMLElement>(null);
@@ -301,7 +301,7 @@ export function SiteSearch({ className }: { className?: string }) {
             const first = displayed[0];
             if (!first) return;
             clear();
-            router.push(`/paintings/${first.slug}`);
+            navigate(`/paintings/${first.slug}`);
           }}
         >
           <label htmlFor={`${panelId}-input`} className="sr-only">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { usePageTransition } from "@/components/providers/page-transition";
 import { revealArtworks } from "@/lib/artwork-reveal";
 import { gsap, useGSAP } from "@/lib/gsap";
 
@@ -17,6 +18,7 @@ type HeroIntroProps = {
 
 export function HeroIntro({ children, className }: HeroIntroProps) {
   const root = useRef<HTMLDivElement>(null);
+  const { onReveal } = usePageTransition();
 
   useGSAP(
     () => {
@@ -29,8 +31,9 @@ export function HeroIntro({ children, className }: HeroIntroProps) {
       const select = gsap.utils.selector(root);
 
       const timeline = gsap
-        .timeline({ defaults: { ease: "expo.out" } })
-        .from("[data-hero-char]", {
+        // Paused in its initial state until the page is visible.
+        .timeline({ paused: true, defaults: { ease: "expo.out" } })
+        .from("[data-title-char]", {
           yPercent: 110,
           duration: 1.6,
           stagger: 0.04,
@@ -49,9 +52,11 @@ export function HeroIntro({ children, className }: HeroIntroProps) {
         0.9,
       );
 
+      const stopWaiting = onReveal(() => timeline.play());
+
       const frames = select<HTMLElement>("[data-hero-drift]");
       if (!frames.length || !window.matchMedia("(pointer: fine)").matches) {
-        return;
+        return stopWaiting;
       }
 
       const follow = (target: gsap.TweenTarget, property: string) =>
@@ -101,6 +106,7 @@ export function HeroIntro({ children, className }: HeroIntroProps) {
       document.documentElement.addEventListener("mouseleave", onMouseLeave);
 
       return () => {
+        stopWaiting();
         window.removeEventListener("pointermove", onPointerMove);
         document.documentElement.removeEventListener(
           "mouseleave",

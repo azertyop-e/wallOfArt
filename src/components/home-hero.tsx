@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { HeroIntro } from "@/components/hero-intro";
 import { HomeArtwork, type WallArtwork } from "@/components/home-artwork";
+import { WallTitle } from "@/components/wall-title";
 import type { Artwork } from "@/lib/api";
 
-const TITLE = "Wall of Art";
 const WALL_SIZE = 6;
 
 function pickWall(artworks: Artwork[]) {
@@ -63,25 +63,8 @@ export function HomeHero({ artworks }: HomeHeroProps) {
           </Link>
         </div>
 
-        <h1 className="text-[14vw] leading-[0.8] font-medium tracking-tight uppercase">
-          <span className="sr-only">{TITLE}</span>
-          {/* Words are spread across the full width; each letter slides up from its mask. */}
-          <span aria-hidden className="flex justify-between">
-            {TITLE.split(" ").map((word) => (
-              <span key={word} className="flex overflow-clip pt-[0.04em]">
-                {[...word].map((char, index) => (
-                  <span
-                    // biome-ignore lint/suspicious/noArrayIndexKey: letters of a static word never reorder.
-                    key={index}
-                    data-hero-char
-                    className="inline-block"
-                  >
-                    {char}
-                  </span>
-                ))}
-              </span>
-            ))}
-          </span>
+        <h1>
+          <WallTitle />
         </h1>
       </HeroIntro>
     </section>
