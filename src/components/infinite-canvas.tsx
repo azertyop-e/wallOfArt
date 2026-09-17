@@ -11,6 +11,7 @@ const MOMENTUM = 14;
 const KEY_SPEED = 14;
 const DRAG_THRESHOLD = 6;
 const MOMENTUM_TIMEOUT = 80;
+const WHEEL_IDLE = 150;
 
 const ARROWS: Record<string, [number, number]> = {
   ArrowLeft: [1, 0],
@@ -107,6 +108,19 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
       };
       gsap.ticker.add(tick);
 
+      // Zoom out slightly while the canvas is being moved (drag or wheel).
+      let zoomedOut = false;
+      const zoomOut = () => {
+        if (zoomedOut) return;
+        zoomedOut = true;
+        gsap.to(planeEl, { scale: 0.96, duration: 0.8, ease: "power3.out" });
+      };
+      const zoomIn = () => {
+        if (!zoomedOut) return;
+        zoomedOut = false;
+        gsap.to(planeEl, { scale: 1, duration: 0.8, ease: "power3.out" });
+      };
+
       // Drag with inertia. Move/up are listened on window so a drag continues
       // outside the canvas; pointer capture is avoided because it would
       // retarget the click away from the painting links.
@@ -166,7 +180,7 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
         ) {
           dragged = true;
           container.dataset.dragging = "";
-          gsap.to(planeEl, { scale: 0.96, duration: 0.8, ease: "power3.out" });
+          zoomOut();
         }
       };
 
@@ -180,7 +194,7 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
 
         pointer = null;
         delete container.dataset.dragging;
-        gsap.to(planeEl, { scale: 1, duration: 0.8, ease: "power3.out" });
+        if (wheelTimeout === undefined) zoomIn();
       };
 
       // A drag ending on a painting must not open it.
@@ -191,10 +205,20 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
         dragged = false;
       };
 
+      // Wheel has no end event: zoom back in once it has been idle a moment.
+      let wheelTimeout: ReturnType<typeof setTimeout> | undefined;
+
       const onWheel = (event: WheelEvent) => {
         // Let the browser handle pinch-to-zoom (ctrl + wheel).
         if (event.ctrlKey) return;
         event.preventDefault();
+
+        zoomOut();
+        clearTimeout(wheelTimeout);
+        wheelTimeout = setTimeout(() => {
+          wheelTimeout = undefined;
+          if (!pointer) zoomIn();
+        }, WHEEL_IDLE);
 
         const unit =
           event.deltaMode === WheelEvent.DOM_DELTA_LINE
@@ -254,6 +278,7 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
 
       return () => {
         gsap.ticker.remove(tick);
+        clearTimeout(wheelTimeout);
         resizeObserver.disconnect();
         container.removeEventListener("pointerdown", onPointerDown);
         container.removeEventListener("click", onClick, true);
