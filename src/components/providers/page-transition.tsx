@@ -14,23 +14,15 @@ import { WallTitle } from "@/components/wall-title";
 import { MASK_HIDDEN, MASK_SHOWN } from "@/lib/artwork-reveal";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
-/** The curtain rises from the bottom edge and leaves through the top one. */
 const MASK_GONE = "inset(0% 0% 100% 0%)";
 const LEAVE_DURATION = 0.9;
 const ENTER_DURATION = 1.1;
-/** The title letters slide in once the curtain is halfway up. */
 const TITLE_IN_AT = 0.4;
-/** The curtain lifts once the title letters have started sliding out. */
 const LIFT_AT = 0.3;
-/** How far the page drifts behind the curtain, for a touch of parallax. */
 const DRIFT = "12vh";
 
 type PageTransitionContextValue = {
   navigate: (href: string) => void;
-  /**
-   * Runs `callback` once the page is visible: right away, or when the curtain
-   * starts lifting if a transition is running. Returns an unsubscribe function.
-   */
   onReveal: (callback: () => void) => () => void;
   content: RefObject<HTMLDivElement | null>;
 };
@@ -183,7 +175,10 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
       .timeline({
         delay,
         defaults: { duration: ENTER_DURATION, ease: "expo.inOut" },
-        onComplete: () => ScrollTrigger.refresh(),
+        onComplete: () => {
+          lenis?.resize();
+          ScrollTrigger.refresh();
+        },
       })
       .to(
         titleCharsOf(curtain.current),
