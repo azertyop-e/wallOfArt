@@ -101,3 +101,13 @@ export async function getRelatedArtworks(artwork: Artwork) {
     .sort((a, b) => score(b) - score(a) || yearGap(a) - yearGap(b))
     .slice(0, RELATED_COUNT);
 }
+
+/** The painting after this one in the collection, wrapping around at the end. */
+export async function getNextArtwork(artwork: Artwork) {
+  const artworks = await getArtworks();
+  const index = artworks.findIndex((other) => other.slug === artwork.slug);
+
+  if (index === -1 || artworks.length < 2) return null;
+
+  return artworks[(index + 1) % artworks.length];
+}

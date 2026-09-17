@@ -3,9 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkImage } from "@/components/artwork-image";
+import { ArtworkPager } from "@/components/artwork-pager";
 import {
   getArtwork,
   getArtworks,
+  getNextArtwork,
   getRelatedArtworks,
   getTypeLabel,
 } from "@/lib/api";
@@ -68,9 +70,12 @@ export default async function PaintingPage({
     (src) => src !== artwork.image,
   );
   const related = await getRelatedArtworks(artwork);
+  // Scrolling on leads to the most similar painting, like the first card above.
+  const next = related[0] ?? (await getNextArtwork(artwork));
 
   return (
-    <main className="min-h-svh p-gutter pt-page-top">
+    // The bottom padding keeps the last paintings clear of the pager's label.
+    <main className="min-h-svh p-gutter pt-page-top pb-[18vh]">
       <Link
         href="/paintings"
         className="text-[10px] leading-3 font-medium text-muted uppercase transition-colors duration-300 hover:text-foreground"
@@ -182,6 +187,14 @@ export default async function PaintingPage({
             ))}
           </ul>
         </section>
+      )}
+
+      {next && (
+        <ArtworkPager
+          // A fresh pager for each painting: the route keeps its client components mounted.
+          key={artwork.slug}
+          next={{ slug: next.slug, title: next.title }}
+        />
       )}
     </main>
   );
