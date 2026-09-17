@@ -6,7 +6,6 @@ import { getArtworks } from "@/lib/api";
 
 const SUGGESTION_COUNT = 3;
 
-/** A few paintings spread across the collection, the same on every render. */
 async function getSuggestions() {
   try {
     const artworks = (await getArtworks()).filter((artwork) => artwork.image);
@@ -18,7 +17,6 @@ async function getSuggestions() {
         artworks[Math.floor((index * artworks.length) / SUGGESTION_COUNT)],
     );
   } catch {
-    // The 404 page must still render when the API is down.
     return [];
   }
 }
@@ -40,12 +38,9 @@ export async function NotFoundView({
     <main className="overflow-clip">
       <NotFoundIntro className="flex min-h-svh flex-col gap-gutter p-gutter pt-page-top">
         <div className="grid grid-cols-2 gap-gutter text-[10px] leading-3 font-medium uppercase md:grid-cols-6">
-          <p data-not-found-fade className="text-muted">
-            Not found
-          </p>
           <div
             data-not-found-fade
-            className="flex flex-col gap-4 md:col-span-2 md:col-start-3"
+            className="flex flex-col gap-4 md:col-span-2 md:col-start-0 "
           >
             <p>
               {heading}
