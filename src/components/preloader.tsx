@@ -42,6 +42,15 @@ const WAITING_AT = 90;
 const MAX_EXTRA_WAIT = 5;
 const LIFT_DURATION = 1.5;
 
+/**
+ * Off the home page the ring has no wall to land on, so it sweeps off one side
+ * instead: -1 exits to the left, 1 to the right.
+ */
+const EXIT_DIRECTION = -1;
+const EXIT_START = 0.6;
+const EXIT_STAGGER = 0.07;
+const EXIT_DURATION = 1.2;
+
 const RING_RADIUS_VW = 30;
 const RING_RADIUS_VH = 65;
 const OVAL_RATIO = 0.42;
@@ -110,33 +119,23 @@ const restingStyle = (index: number): React.CSSProperties => {
   };
 };
 
-const lineBoxes = (): Box[] => {
+/** Where the home page wall sits on screen, or null when the page has no wall. */
+const wallBoxes = (): Box[] | null => {
+  const wall = gsap.utils.toArray<HTMLElement>(WALL_FRAMES);
+  if (wall.length < WALL_SIZE) return null;
+
   const centerX = window.innerWidth / 2;
   const centerY = window.innerHeight / 2;
-  const wall = gsap.utils.toArray<HTMLElement>(WALL_FRAMES);
 
-  if (wall.length >= WALL_SIZE) {
-    return wall.slice(0, WALL_SIZE).map((frame) => {
-      const rect = frame.getBoundingClientRect();
-      return {
-        x: rect.left + rect.width / 2 - centerX,
-        y: rect.top + rect.height / 2 - centerY,
-        width: rect.width,
-        height: rect.height,
-      };
-    });
-  }
-
-  const gap = (window.innerWidth * 32) / 1500;
-  const width = Math.min(window.innerWidth * 0.1, window.innerHeight * 0.18);
-  const step = width + gap;
-
-  return Array.from({ length: WALL_SIZE }, (_, slot) => ({
-    x: (slot - (WALL_SIZE - 1) / 2) * step,
-    y: 0,
-    width,
-    height: (width * 4) / 3,
-  }));
+  return wall.slice(0, WALL_SIZE).map((frame) => {
+    const rect = frame.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2 - centerX,
+      y: rect.top + rect.height / 2 - centerY,
+      width: rect.width,
+      height: rect.height,
+    };
+  });
 };
 
 const pageLoaded = () =>
@@ -203,6 +202,8 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
 
       const orbit = { angle: 0, speed: 0 };
       const line = { progress: 0 };
+      /** Per card, how far it has slid toward the exit side. */
+      const exits = ring.map(() => ({ x: 0 }));
       let boost = 0;
       let radius = 0;
 
@@ -222,7 +223,7 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
       };
 
       const place = () => {
-        const boxes = line.progress > 0 ? lineBoxes() : [];
+        const boxes = line.progress > 0 ? wallBoxes() : null;
         const toward = gsap.utils.interpolate;
 
         cards.forEach((card, index) => {
@@ -233,7 +234,7 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
           let zIndex = point.zIndex;
 
           const slot = cardSlots[index];
-          const box = slot === undefined ? undefined : boxes[slot];
+          const box = boxes && slot !== undefined ? boxes[slot] : undefined;
           if (box) {
             x = toward(x, box.x, line.progress);
             y = toward(y, box.y, line.progress);
@@ -248,7 +249,7 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
             });
           }
 
-          gsap.set(card, { x, y, scale, zIndex });
+          gsap.set(card, { x: x + exits[index].x, y, scale, zIndex });
         });
       };
 
@@ -361,16 +362,11 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
 
         gsap.set(frames, { clipPath: MASK_SHOWN });
         measureCards();
-        const lineFrames = cards
-          .map((card, index) => ({ card, slot: cardSlots[index] }))
-          .filter(({ slot }) => slot !== undefined)
-          .sort((a, b) => (a.slot ?? 0) - (b.slot ?? 0))
-          .map(({ card }) => card.firstElementChild as HTMLElement);
 
         settling = true;
         boost = 0;
 
-        gsap
+        const timeline = gsap
           .timeline({ onComplete: finish })
           .to(
             progress,
@@ -382,37 +378,53 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
             },
             0,
           )
-          .add(
-            hideArtworks(extras, {
-              duration: 0.7,
-              stagger: { each: 0.08, from: "random" },
-            }),
-            0,
-          )
-          .to(orbit, { speed: 0, duration: 1.8, ease: "power2.out" }, 0)
-          .to(line, { progress: 1, duration: 2.2, ease: "expo.inOut" }, 0.2)
-          .to(
-            "[data-preloader-counter]",
-            { yPercent: -110, duration: 0.9, ease: "power3.in" },
-            1.4,
-          )
-          .to(
-            "[data-preloader-fade]",
-            { autoAlpha: 0, duration: 0.7, ease: "power2.in" },
-            1.4,
-          )
-          .addLabel("lift", 2.4)
-          .to(
-            backdrop.current,
-            {
-              clipPath: MASK_GONE,
-              duration: LIFT_DURATION,
-              ease: "expo.inOut",
-            },
-            "lift",
-          )
-          .call(completeFirstRender, [], "lift+=0.9")
-          .fromTo(
+          .to(orbit, { speed: 0, duration: 1.8, ease: "power2.out" }, 0);
+
+        /** The shared tail: the counter and the captions leave, then the backdrop lifts. */
+        const outro = (at: number) =>
+          timeline
+            .to(
+              "[data-preloader-counter]",
+              { yPercent: -110, duration: 0.9, ease: "power3.in" },
+              at,
+            )
+            .to(
+              "[data-preloader-fade]",
+              { autoAlpha: 0, duration: 0.7, ease: "power2.in" },
+              at,
+            )
+            .addLabel("lift", at + 1)
+            .to(
+              backdrop.current,
+              {
+                clipPath: MASK_GONE,
+                duration: LIFT_DURATION,
+                ease: "expo.inOut",
+              },
+              "lift",
+            )
+            .call(completeFirstRender, [], "lift+=0.9");
+
+        // On the home page the ring lines up on the wall and hands its paintings
+        // over to the very same ones underneath.
+        if (wallBoxes()) {
+          const lineFrames = cards
+            .map((card, index) => ({ card, slot: cardSlots[index] }))
+            .filter(({ slot }) => slot !== undefined)
+            .sort((a, b) => (a.slot ?? 0) - (b.slot ?? 0))
+            .map(({ card }) => card.firstElementChild as HTMLElement);
+
+          timeline
+            .add(
+              hideArtworks(extras, {
+                duration: 0.7,
+                stagger: { each: 0.08, from: "random" },
+              }),
+              0,
+            )
+            .to(line, { progress: 1, duration: 2.2, ease: "expo.inOut" }, 0.2);
+
+          outro(1.4).fromTo(
             lineFrames,
             { clipPath: MASK_SHOWN },
             {
@@ -423,6 +435,33 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
             },
             "lift+=1.2",
           );
+
+          return;
+        }
+
+        // Anywhere else there is no wall to land on: the whole ring slides off the
+        // same side, the cards nearest that edge leaving first.
+        const distance =
+          EXIT_DIRECTION * (window.innerWidth / 2 + radius + ringSize.width);
+
+        exits
+          .map((exit, index) => ({
+            exit,
+            x: ringPoint(orbit.angle + cardAngle(index)).x,
+          }))
+          .sort((a, b) => (b.x - a.x) * EXIT_DIRECTION)
+          .forEach(({ exit }, rank) => {
+            timeline.to(
+              exit,
+              { x: distance, duration: EXIT_DURATION, ease: "power2.in" },
+              EXIT_START + rank * EXIT_STAGGER,
+            );
+          });
+
+        // The backdrop only lifts once the last card has cleared the edge.
+        outro(
+          EXIT_START + (exits.length - 1) * EXIT_STAGGER + EXIT_DURATION - 1,
+        );
       });
 
       return () => {
