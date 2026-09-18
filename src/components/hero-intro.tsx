@@ -4,8 +4,8 @@ import { useRef } from "react";
 import { usePageTransition } from "@/components/providers/page-transition";
 import { revealArtworks } from "@/lib/artwork-reveal";
 import { gsap, useGSAP } from "@/lib/gsap";
+import { WALL_IMAGE_ZOOM } from "@/lib/wall";
 
-const IMAGE_ZOOM = 1.25;
 const FRAME_SHIFT = 2;
 const IMAGE_SHIFT = 15;
 const FRAME_TILT = 8;
@@ -43,7 +43,7 @@ export function HeroIntro({ children, className }: HeroIntroProps) {
         timeline,
         position: 0.3,
         // The frame crops the image on purpose: the drift pans inside of it.
-        zoom: IMAGE_ZOOM,
+        zoom: WALL_IMAGE_ZOOM,
       });
 
       timeline.from(

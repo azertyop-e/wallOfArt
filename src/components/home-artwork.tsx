@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { ArtworkImage } from "@/components/artwork-image";
-import type { Artwork } from "@/lib/api";
-
-export type WallArtwork = Artwork & { image: string; year: number };
+import type { WallArtwork } from "@/lib/wall";
 
 type HomeArtworkProps = {
   artwork: WallArtwork;

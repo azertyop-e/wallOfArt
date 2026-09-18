@@ -13,6 +13,7 @@ import {
 import { WallTitle } from "@/components/wall-title";
 import { MASK_HIDDEN, MASK_SHOWN } from "@/lib/artwork-reveal";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { useAppStore } from "@/stores/app-store";
 
 const MASK_GONE = "inset(0% 0% 100% 0%)";
 const LEAVE_DURATION = 0.9;
@@ -88,9 +89,25 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   /** The pathname being left while a transition runs, null otherwise. */
   const leaving = useRef<string | null>(null);
   const leave = useRef<gsap.core.Timeline>(null);
-  /** True while the curtain hides the page, until it starts lifting. */
-  const covered = useRef(false);
+  const covered = useRef(useAppStore.getState().isFirstRender);
   const waiting = useRef(new Set<() => void>());
+
+  const uncover = () => {
+    covered.current = false;
+    const callbacks = [...waiting.current];
+    waiting.current.clear();
+    for (const callback of callbacks) callback();
+  };
+
+  const onUncover = useEffectEvent(uncover);
+
+  useEffect(
+    () =>
+      useAppStore.subscribe((state) => {
+        if (!state.isFirstRender) onUncover();
+      }),
+    [],
+  );
 
   const onReveal = (callback: () => void) => {
     if (!covered.current) {
@@ -164,13 +181,6 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     const title = leave.current;
     const delay = title ? title.duration() - title.time() : 0;
 
-    const reveal = () => {
-      covered.current = false;
-      const callbacks = [...waiting.current];
-      waiting.current.clear();
-      for (const callback of callbacks) callback();
-    };
-
     gsap
       .timeline({
         delay,
@@ -191,8 +201,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
         { clipPath: MASK_GONE },
         LIFT_AT,
       )
-      // The page's own animations were waiting for it to be visible.
-      .call(reveal, [], LIFT_AT)
+      .call(() => onUncover(), [], LIFT_AT)
       .fromTo(
         content.current,
         { y: DRIFT },

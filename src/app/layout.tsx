@@ -4,11 +4,14 @@ import localFont from "next/font/local";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 import { Navbar } from "@/components/navBar";
+import { Preloader } from "@/components/preloader";
 import {
   PageTransition,
   PageTransitionContent,
 } from "@/components/providers/page-transition";
 import { SmoothScroll } from "@/components/providers/smooth-scroll";
+import { getArtworks } from "@/lib/api";
+import { pickWall } from "@/lib/wall";
 
 const clashDisplay = localFont({
   src: [
@@ -28,7 +31,19 @@ export const metadata: Metadata = {
   description: "A creative museum to explore by scrolling.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+/** The home page wall, so the preloader's line hands over to the very same paintings. */
+async function getWallImages() {
+  try {
+    return pickWall(await getArtworks()).map((artwork) => artwork.image);
+  } catch {
+    // The preloader falls back to its own paintings.
+    return [];
+  }
+}
+
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const wallImages = await getWallImages();
+
   return (
     <html
       lang="en"
@@ -40,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <SmoothScroll>
             <PageTransitionContent>{children}</PageTransitionContent>
           </SmoothScroll>
+          <Preloader wallImages={wallImages} />
         </PageTransition>
       </body>
     </html>

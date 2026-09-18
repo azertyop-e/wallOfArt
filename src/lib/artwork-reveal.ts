@@ -3,7 +3,7 @@ import { gsap } from "@/lib/gsap";
 /** How far the image is zoomed past its resting scale before it settles. */
 const OVERSCAN = 1.12;
 
-const FRAME_DURATION = 1.6;
+export const FRAME_DURATION = 1.6;
 const IMAGE_DURATION = 2;
 const HIDE_DURATION = 0.35;
 

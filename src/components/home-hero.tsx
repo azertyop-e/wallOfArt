@@ -1,26 +1,9 @@
 import Link from "next/link";
 import { HeroIntro } from "@/components/hero-intro";
-import { HomeArtwork, type WallArtwork } from "@/components/home-artwork";
+import { HomeArtwork } from "@/components/home-artwork";
 import { WallTitle } from "@/components/wall-title";
 import type { Artwork } from "@/lib/api";
-
-const WALL_SIZE = 6;
-
-function pickWall(artworks: Artwork[]) {
-  const dated = artworks
-    .filter((artwork): artwork is WallArtwork =>
-      Boolean(artwork.image && artwork.year),
-    )
-    .sort((a, b) => a.year - b.year);
-
-  if (dated.length <= WALL_SIZE) return dated;
-
-  return Array.from(
-    { length: WALL_SIZE },
-    (_, index) =>
-      dated[Math.round((index * (dated.length - 1)) / (WALL_SIZE - 1))],
-  );
-}
+import { pickWall } from "@/lib/wall";
 
 type HomeHeroProps = {
   artworks: Artwork[];
