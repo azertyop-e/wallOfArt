@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth-form";
-import { WallTitle } from "@/components/wall-title";
+import { AuthPage } from "@/components/auth-page";
 import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -17,17 +17,15 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const { next } = await searchParams;
 
   return (
-    <main className="min-h-svh px-gutter pt-page-top pb-page-bottom">
-      <h1 className="mb-[8vh]">
-        <WallTitle title="Log in" />
-      </h1>
-
-      <div className="md:span-w-2">
-        <AuthForm
-          mode="login"
-          next={typeof next === "string" ? next : undefined}
-        />
-      </div>
-    </main>
+    <AuthPage
+      title="Log in"
+      intro="Welcome back"
+      hint="Log in with your email and password."
+    >
+      <AuthForm
+        mode="login"
+        next={typeof next === "string" ? next : undefined}
+      />
+    </AuthPage>
   );
 }
