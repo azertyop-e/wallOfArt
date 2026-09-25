@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wall of Art
 
-## Getting Started
+Site de musée consacré à la peinture, construit avec Next.js (App Router). Il donne envie de découvrir des œuvres : on les explore sur un mur infini, on les filtre, on lit leur histoire, on garde ses favorites et on prépare sa visite.
 
-First, run the development server:
+Les données viennent d'une API publique d'œuvres d'art : [`api-museum.vercel.app`](https://api-museum.vercel.app).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+- **Next.js 16** (App Router, Turbopack, React Compiler) et **React 19**
+- **TypeScript**
+- **Tailwind CSS v4** (configuration dans le CSS, sans `tailwind.config.js`)
+- **GSAP** + `@gsap/react` pour les animations, **Lenis** pour le smooth scroll
+- **Zustand** pour l'état global (préloader, verrouillage du scroll, panier de billets)
+- **Better Auth** pour les comptes (email + mot de passe)
+- **Drizzle ORM** + **Neon** (Postgres serverless) pour les utilisateurs et les favoris
+- **Biome** pour le lint et le formatage
+- Déploiement sur **Vercel**
+
+## Fonctionnalités
+
+| Route | Contenu | Rendu |
+| --- | --- | --- |
+| `/` | Hero animé avec une sélection d'œuvres | ISR (revalidation toutes les heures) |
+| `/paintings` | Mur infini déplaçable, filtres (mouvement, type, artiste…) et recherche ; les filtres vivent dans les `searchParams` | Rendu dynamique (SSR) |
+| `/paintings/[slug]` | Fiche complète d'une œuvre, description HTML, bouton favori, œuvres similaires, œuvre suivante | SSG via `generateStaticParams` + ISR |
+| `/tickets` | Billetterie : tarifs, options et total mis à jour en direct | Statique (`force-static`), état côté client avec Zustand |
+| `/about` | Présentation du musée, horaires, chiffres calculés à partir de la collection | ISR |
+| `/login`, `/signup` | Connexion et inscription | Server Actions |
+| `/account` | Profil et liste des favoris, protégés par `proxy.ts` | Dynamique |
+| `/api/search` | Recherche plein texte utilisée par la barre de recherche en temps réel | Route Handler |
+
+Autres éléments :
+
+- **Préloader** affiché uniquement au premier chargement grâce au flag `isFirstRender` du store.
+- **Transition de page** entre les routes (`src/components/providers/page-transition.tsx`).
+- **Wrappers d'animation réutilisables** : `Reveal` (apparition au scroll) et `Parallax`.
+- **SEO** : `metadata` et `generateMetadata` par page, Open Graph, image OG générée, `sitemap.ts` et `robots.ts`.
+- **Images** via `next/image`, avec des miniatures Wikimedia pré-dimensionnées pour éviter de retélécharger les originaux.
+
+## Structure
+
+```
+src/
+├── app/          # Routes (App Router), metadata, sitemap, robots, route handlers
+├── components/   # Composants UI : Server Components par défaut, "use client" pour tout ce qui anime
+├── db/           # Client Drizzle et schéma (auth + favoris)
+├── lib/          # Accès à l'API, filtres, recherche, auth, billets, config GSAP
+├── stores/       # Stores Zustand (app, commande)
+└── proxy.ts      # Redirige vers /login si /account est demandé sans session
+drizzle/          # Migrations SQL
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Les pages restent des Server Components qui récupèrent les données. Les parties interactives ou animées (GSAP, Lenis, stores) sont isolées dans de petits Client Components qui enveloppent le contenu rendu côté serveur.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Lancer le projet
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Prérequis : Node.js 20+ et une base Postgres (Neon par exemple).
 
-## Learn More
+```bash
+npm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+Créer un fichier `.env.local` :
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+DATABASE_URL=postgres://...            # connexion poolée (runtime)
+DATABASE_URL_UNPOOLED=postgres://...   # connexion directe (migrations), optionnelle
+BETTER_AUTH_SECRET=...                 # chaîne aléatoire, ex. `openssl rand -base64 32`
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Appliquer les migrations puis démarrer :
 
-## Deploy on Vercel
+```bash
+npm run db:migrate
+npm run dev        # http://localhost:3000
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev          # serveur de développement
+npm run build        # build de production
+npm run start        # sert le build de production
+npm run lint         # biome check (lint + format + imports)
+npm run format       # biome format --write
+npm run db:generate  # génère une migration à partir du schéma
+npm run db:migrate   # applique les migrations
+npm run db:studio    # ouvre Drizzle Studio
+```
+
+## Mon avis sur Next.js
+
+### Ce que j'ai aimé
+
+- **Les conventions de nommage.** Il suffit de bien nommer un fichier ou un dossier pour qu'il soit tout de suite intégré : `page.tsx` crée une route, `[slug]` la rend dynamique, `not-found.tsx`, `sitemap.ts`, `robots.ts` ou `opengraph-image.tsx` sont pris en compte sans configuration. On passe moins de temps à câbler et plus de temps à construire.
+- **L'écosystème.** Tout s'intègre bien autour de Next : `next/image`, `next/font`, les metadata pour le SEO, et des librairies comme Better Auth, Drizzle, GSAP ou Lenis qui fonctionnent sans friction. La documentation est fournie et la communauté est grande, donc on trouve facilement de l'aide.
+- **Le déploiement rapide avec Vercel.** On connecte le dépôt et chaque push est déployé, avec une URL de preview par branche. Les stratégies de cache (SSG, ISR) sont gérées automatiquement en production.
+
+### Ce qui m'a posé plus de difficultés
+
+- **Le manque de typage en JavaScript.** En JS pur, j'ai plus de mal à savoir ce que contiennent les `params`, les réponses d'API ou les props. Je préfère utiliser Next avec TypeScript, ce que j'ai fait ici : les helpers `PageProps<"/route">` et `LayoutProps` générés par Next, ainsi que le type `Artwork` de l'API, rendent le code beaucoup plus sûr.
+- **La rigueur qu'il faut s'imposer.** Next laisse beaucoup de liberté : Server ou Client Component, où récupérer les données, quelle stratégie de rendu choisir, où ranger les fichiers. Sans méthodologie claire, la codebase devient vite désordonnée. Il faut se contraindre à une organisation cohérente (dossiers `lib`, `components`, `stores`, Client Components aussi petits que possible, conventions de nommage) pour garder un projet propre et lisible.
