@@ -1,4 +1,11 @@
-import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
 // Tables expected by Better Auth (user, session, account, verification).
 // Field names follow its core schema so the Drizzle adapter maps them as is.
@@ -75,4 +82,20 @@ export const verification = pgTable(
       .notNull(),
   },
   (table) => [index("verification_identifier_idx").on(table.identifier)],
+);
+
+/**
+ * Artworks a user saved. The API is the source of truth for artworks, so only
+ * their slug is stored here.
+ */
+export const favorite = pgTable(
+  "favorite",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    artworkSlug: text("artwork_slug").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.artworkSlug] })],
 );
