@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkImage } from "@/components/artwork-image";
 import { ArtworkPager } from "@/components/artwork-pager";
+import { FavoriteButton } from "@/components/favorite-button";
+import { Parallax } from "@/components/parallax";
+import { Reveal } from "@/components/reveal";
 import {
   getArtwork,
   getArtworks,
@@ -70,128 +73,168 @@ export default async function PaintingPage({
     (src) => src !== artwork.image,
   );
   const related = await getRelatedArtworks(artwork);
-  // Scrolling on leads to the most similar painting, like the first card above.
   const next = related[0] ?? (await getNextArtwork(artwork));
 
   return (
-    // The bottom padding keeps the last paintings clear of the pager's label.
-    <main className="min-h-svh p-gutter pt-page-top pb-[18vh]">
-      <Link
-        href="/paintings"
-        className="text-[10px] leading-3 font-medium text-muted uppercase transition-colors duration-300 hover:text-foreground"
-      >
-        ← All paintings
-      </Link>
+    <main key={artwork.slug} className="min-h-svh pb-[18vh]">
+      <section className="flex h-svh flex-col gap-6 overflow-clip px-gutter pt-page-top pb-gutter">
+        <Link
+          href="/paintings"
+          className="w-fit text-[10px] leading-3 font-medium text-muted uppercase transition-colors duration-300 hover:text-foreground"
+        >
+          ← All paintings
+        </Link>
 
-      <article className="mt-10 flex flex-col gap-gutter lg:flex-row">
         {artwork.image && (
-          <div className="w-full lg:sticky lg:top-page-top lg:self-start lg:span-w-4 wide:span-w-3 ultrawide:span-w-2">
-            <div className="relative h-[60svh] lg:h-[calc(100svh-var(--spacing-page-top)-var(--spacing-gutter))]">
-              <ArtworkImage
-                src={artwork.image}
-                alt={artwork.title}
-                fill
-                preload
-                sizes="(min-width: 100rem) and (min-aspect-ratio: 32/9) 33vw, (min-width: 100rem) and (min-aspect-ratio: 21/9) 50vw, (min-width: 1024px) 66vw, 100vw"
-                className="object-contain object-top-left"
-              />
-            </div>
-          </div>
+          <Reveal variant="artworks" className="relative min-h-0 flex-1">
+            <Parallax className="absolute inset-0" speed={0.25}>
+              <div data-artwork-frame className="absolute inset-0">
+                <ArtworkImage
+                  src={artwork.image}
+                  alt={artwork.title}
+                  fill
+                  preload
+                  sizes="100vw"
+                  className="object-contain"
+                />
+              </div>
+            </Parallax>
+          </Reveal>
         )}
+      </section>
 
-        <div className="flex flex-col gap-10 lg:span-w-2">
-          <header>
-            <h1 className="text-4xl leading-none font-medium tracking-tight uppercase">
-              {artwork.title}
-            </h1>
+      <article className="mt-[12vh] px-gutter">
+        <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <Reveal variant="lines">
+              <h1 className="text-4xl leading-none font-medium tracking-tight uppercase md:text-6xl">
+                {artwork.title}
+              </h1>
+            </Reveal>
             {artwork.artist && (
-              <p className="mt-2 text-xs leading-3 font-medium text-muted uppercase">
-                {artwork.artist}
-                {artwork.year && `, ${artwork.year}`}
-              </p>
+              <Reveal variant="items" delay={0.3}>
+                <p
+                  data-reveal-item
+                  className="mt-3 text-xs leading-3 font-medium text-muted uppercase"
+                >
+                  {artwork.artist}
+                  {artwork.year && `, ${artwork.year}`}
+                </p>
+              </Reveal>
             )}
-          </header>
+          </div>
 
-          <dl className="text-[10px] leading-3 font-medium uppercase">
-            {details.map((detail) => (
-              <div
-                key={detail.label}
-                className="flex justify-between gap-4 border-t border-foreground/10 py-2"
-              >
-                <dt className="text-muted">{detail.label}</dt>
-                <dd className="text-right">{detail.value}</dd>
-              </div>
-            ))}
-            {artwork.location && (
-              <div className="flex justify-between gap-4 border-y border-foreground/10 py-2">
-                <dt className="text-muted">Location</dt>
-                <dd className="text-right">
-                  {artwork.locationLink ? (
-                    <a
-                      href={artwork.locationLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline underline-offset-2 hover:text-muted"
-                    >
-                      {artwork.location}
-                    </a>
-                  ) : (
-                    artwork.location
-                  )}
-                </dd>
-              </div>
-            )}
-          </dl>
+          <Reveal variant="items" delay={0.4}>
+            <div data-reveal-item>
+              <FavoriteButton slug={artwork.slug} />
+            </div>
+          </Reveal>
+        </header>
 
+        <div className="mt-16 flex flex-col gap-16 lg:flex-row lg:justify-between lg:gap-gutter">
           {artwork.description && (
-            <div
-              className="max-w-[70ch] space-y-4 text-sm leading-relaxed [&_em]:italic [&_i]:italic [&_strong]:font-medium"
-              dangerouslySetInnerHTML={{ __html: artwork.description }}
-            />
+            <Reveal variant="lines" className="lg:span-w-3">
+              <div
+                className="max-w-[70ch] space-y-4 text-sm leading-relaxed [&_em]:italic [&_i]:italic [&_strong]:font-medium"
+                dangerouslySetInnerHTML={{ __html: artwork.description }}
+              />
+            </Reveal>
           )}
+
+          <Reveal variant="items" delay={0.2} className="lg:span-w-2">
+            <dl className="text-[10px] leading-3 font-medium uppercase">
+              {details.map((detail) => (
+                <div
+                  key={detail.label}
+                  data-reveal-item
+                  className="flex justify-between gap-4 border-t border-foreground/10 py-2"
+                >
+                  <dt className="text-muted">{detail.label}</dt>
+                  <dd className="text-right">{detail.value}</dd>
+                </div>
+              ))}
+              {artwork.location && (
+                <div
+                  data-reveal-item
+                  className="flex justify-between gap-4 border-y border-foreground/10 py-2"
+                >
+                  <dt className="text-muted">Location</dt>
+                  <dd className="text-right">
+                    {artwork.locationLink ? (
+                      <a
+                        href={artwork.locationLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline underline-offset-2 hover:text-muted"
+                      >
+                        {artwork.location}
+                      </a>
+                    ) : (
+                      artwork.location
+                    )}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </Reveal>
         </div>
       </article>
 
-      {gallery.length > 0 && (
-        <section className="mt-24">
-          <h2 className="text-xs leading-3 font-medium uppercase">Gallery</h2>
-          <ul className="mt-6 grid grid-cols-1 gap-gutter md:grid-cols-2 wide:grid-cols-3">
-            {gallery.map((src, index) => (
-              <li key={src} className="relative aspect-4/3 bg-neutral-100">
-                <ArtworkImage
-                  src={src}
-                  alt={`${artwork.title} — view ${index + 2}`}
-                  fill
-                  sizes="(min-width: 100rem) and (min-aspect-ratio: 21/9) 33vw, (min-width: 768px) 50vw, 100vw"
-                  className="object-contain"
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <div className="px-gutter">
+        {gallery.length > 0 && (
+          <section className="mt-24">
+            <Reveal variant="lines">
+              <h2 className="text-xs leading-3 font-medium uppercase">
+                Gallery
+              </h2>
+            </Reveal>
+            <Reveal variant="artworks">
+              <ul className="mt-6 grid grid-cols-1 gap-gutter md:grid-cols-2 wide:grid-cols-3">
+                {gallery.map((src, index) => (
+                  <li
+                    key={src}
+                    data-artwork-frame
+                    className="relative aspect-4/3 overflow-hidden bg-neutral-100"
+                  >
+                    <ArtworkImage
+                      src={src}
+                      alt={`${artwork.title} — view ${index + 2}`}
+                      fill
+                      sizes="(min-width: 100rem) and (min-aspect-ratio: 21/9) 33vw, (min-width: 768px) 50vw, 100vw"
+                      className="object-contain"
+                    />
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          </section>
+        )}
 
-      {related.length > 0 && (
-        <section className="mt-24">
-          <h2 className="text-xs leading-3 font-medium uppercase">
-            Similar paintings
-          </h2>
-          <ul className="mt-6 grid grid-cols-2 gap-x-gutter gap-y-12 md:grid-cols-3 lg:grid-cols-6">
-            {related.map((item) => (
-              <li key={item.id}>
-                <ArtworkCard
-                  artwork={item}
-                  sizes="(min-width: 1024px) 16vw, (min-width: 768px) 33vw, 50vw"
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+        {related.length > 0 && (
+          <section className="mt-24">
+            <Reveal variant="lines">
+              <h2 className="text-xs leading-3 font-medium uppercase">
+                Similar paintings
+              </h2>
+            </Reveal>
+            <Reveal variant="artworks">
+              <ul className="mt-6 grid grid-cols-2 gap-x-gutter gap-y-12 md:grid-cols-3 lg:grid-cols-6">
+                {related.map((item) => (
+                  <li key={item.id}>
+                    <ArtworkCard
+                      artwork={item}
+                      sizes="(min-width: 1024px) 16vw, (min-width: 768px) 33vw, 50vw"
+                    />
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          </section>
+        )}
+      </div>
 
       {next && (
         <ArtworkPager
-          // A fresh pager for each painting: the route keeps its client components mounted.
           key={artwork.slug}
           next={{ slug: next.slug, title: next.title }}
         />
