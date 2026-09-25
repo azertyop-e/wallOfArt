@@ -31,7 +31,6 @@ export function HeroIntro({ children, className }: HeroIntroProps) {
       const select = gsap.utils.selector(root);
 
       const timeline = gsap
-        // Paused in its initial state until the page is visible.
         .timeline({ paused: true, defaults: { ease: "expo.out" } })
         .from("[data-title-char]", {
           yPercent: 110,
@@ -42,7 +41,6 @@ export function HeroIntro({ children, className }: HeroIntroProps) {
       revealArtworks(select("[data-artwork-frame]"), {
         timeline,
         position: 0.3,
-        // The frame crops the image on purpose: the drift pans inside of it.
         zoom: WALL_IMAGE_ZOOM,
       });
 

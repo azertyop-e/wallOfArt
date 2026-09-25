@@ -11,7 +11,6 @@ export const metadata: Metadata = {
 };
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
-  // Rendered per request (SSR): it reads the session cookie.
   if (await getSession()) redirect("/account");
 
   const { next } = await searchParams;

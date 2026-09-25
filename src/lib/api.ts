@@ -3,7 +3,6 @@ import { getWikimediaThumbnail } from "@/lib/wikimedia";
 
 const API_URL = "https://api-museum.vercel.app";
 
-// The API sends `cache-control: max-age=0`, so caching is decided here (ISR).
 const REVALIDATE = 3600;
 const RELATED_COUNT = 6;
 
@@ -20,7 +19,6 @@ export type Artwork = {
   title: string;
   year?: number;
   type?: ArtworkType;
-  /** HTML string (`<p>`, `<strong>`, `<i>`, `<em>`). */
   description?: string;
   image?: string;
   gallery?: string[];
@@ -102,7 +100,6 @@ export async function getRelatedArtworks(artwork: Artwork) {
     .slice(0, RELATED_COUNT);
 }
 
-/** The painting after this one in the collection, wrapping around at the end. */
 export async function getNextArtwork(artwork: Artwork) {
   const artworks = await getArtworks();
   const index = artworks.findIndex((other) => other.slug === artwork.slug);

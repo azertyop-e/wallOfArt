@@ -5,14 +5,9 @@ import { QuantityStepper } from "@/components/quantity-stepper";
 import { TICKETS } from "@/lib/tickets";
 import { useOrderStore } from "@/stores/order-store";
 
-// Match the list's `Reveal variant="items" delay={0.5}` and its row stagger.
 const PRICE_DELAY = 0.7;
 const ROW_STAGGER = 0.06;
 
-/**
- * The admission rates, one row per rate across the full width. Each counter
- * writes to the order store the bottom bar reads from.
- */
 export function TicketList({ className }: { className?: string }) {
   const quantities = useOrderStore((state) => state.quantities);
   const setQuantity = useOrderStore((state) => state.setQuantity);
@@ -47,7 +42,6 @@ export function TicketList({ className }: { className?: string }) {
             </span>
 
             <span className="col-start-2 row-start-1 justify-self-end tabular-nums md:col-start-5 md:justify-self-start">
-              {/* Counts once its row has slid in (see the page's Reveal). */}
               <PriceCountUp
                 price={ticket.price}
                 delay={PRICE_DELAY + index * ROW_STAGGER}

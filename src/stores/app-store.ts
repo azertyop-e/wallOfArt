@@ -3,7 +3,6 @@ import { create } from "zustand";
 type AppState = {
   isFirstRender: boolean;
   completeFirstRender: () => void;
-  /** How many overlays (preloader, page transition) currently hold the scroll. */
   scrollLocks: number;
   lockScroll: () => void;
   unlockScroll: () => void;

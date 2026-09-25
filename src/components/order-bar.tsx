@@ -10,11 +10,6 @@ import { useOrderStore } from "@/stores/order-store";
 const prefersReducedMotion = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/**
- * The running total, pinned to the bottom of the ticket page. It recomputes
- * from the order store, so every counter and every option updates it as it is
- * clicked; the breakdown unfolds above the bar on demand.
- */
 export function OrderBar() {
   const quantities = useOrderStore((state) => state.quantities);
   const options = useOrderStore((state) => state.options);
@@ -32,7 +27,6 @@ export function OrderBar() {
   const empty = visitors === 0;
   const expanded = open && !empty;
 
-  // Entrance: the bar rises from the bottom edge once the page is visible.
   useGSAP(
     () => {
       if (prefersReducedMotion()) return;
@@ -50,7 +44,6 @@ export function OrderBar() {
     { scope: bar },
   );
 
-  // The breakdown lines follow the unfolding row one after the other.
   useGSAP(
     () => {
       if (!expanded || prefersReducedMotion()) return;
@@ -66,7 +59,6 @@ export function OrderBar() {
     { scope: bar, dependencies: [expanded] },
   );
 
-  // Booking swaps the whole row: its new content slides up into place.
   const wasBooked = useRef(booked);
   useGSAP(
     () => {
@@ -89,14 +81,12 @@ export function OrderBar() {
     "cursor-pointer text-nowrap transition-colors duration-300 disabled:cursor-default disabled:text-background/40";
 
   return (
-    // Below the transition curtain (z-40): the bar leaves with the page.
     <div
       ref={bar}
       className="fixed bottom-0 left-0 z-30 w-screen bg-foreground text-background"
     >
       <h2 className="sr-only">Your visit</h2>
 
-      {/* Collapsed to a zero-height row rather than measured in JS. */}
       <div
         id={detailId}
         className={`grid transition-[grid-template-rows] duration-500 ease-out ${

@@ -8,16 +8,11 @@ import { createPortal } from "react-dom";
 import { usePageTransition } from "@/components/providers/page-transition";
 import { gsap, useGSAP } from "@/lib/gsap";
 
-/** How close to the top or bottom of the page counts as being at the edge, in px. */
 const EDGE = 25;
-/** How much wheel travel past the edge it takes to change painting, in px. */
 const PULL_DISTANCE = 1750;
-/** The page darkens up to this opacity as the pull builds up. */
 const MAX_SHADE = 1 / 3;
-/** Pulling is ignored for a moment after the page appears, so a wheel still spinning from the page before doesn't pull. */
 const ENABLE_DELAY = 1;
 
-/** Where pulling past the top of the page leads. */
 const BACK_HREF = "/paintings";
 
 type Direction = "back" | "next";
@@ -121,10 +116,7 @@ export function ArtworkPager({ next }: ArtworkPagerProps) {
       const onWheel = (event: WheelEvent) => {
         if (!enabled || leaving) return;
 
-        // Firefox may report the delta in lines rather than pixels.
         const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY;
-        // Once a pull has started, the wheel drives it both ways: scrolling
-        // back empties it bit by bit instead of dropping it all at once.
         const direction: Direction | null =
           pulled.next > 0 || (delta > 0 && atEnd(lenis))
             ? "next"
@@ -134,7 +126,6 @@ export function ArtworkPager({ next }: ArtworkPagerProps) {
 
         if (!direction) return;
 
-        // The page stays still while the wheel pulls: Lenis never sees it.
         event.preventDefault();
         event.stopPropagation();
 
@@ -159,7 +150,6 @@ export function ArtworkPager({ next }: ArtworkPagerProps) {
       const stopWaiting = onReveal(() => enable.play());
 
       const stopListening = lenis.on("scroll", update);
-      // Captured on window, ahead of Lenis's own wheel listener there.
       window.addEventListener("wheel", onWheel, {
         capture: true,
         passive: false,
@@ -178,8 +168,6 @@ export function ArtworkPager({ next }: ArtworkPagerProps) {
 
   if (!mounted) return null;
 
-  // Rendered on <body>: the routed content is transformed during the page
-  // transition, which would drag these fixed elements along with it.
   return createPortal(
     <div
       ref={root}

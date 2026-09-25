@@ -6,12 +6,6 @@ type WallTitleProps = {
   className?: string;
 };
 
-/**
- * The big « Wall of Art » title (or any other `title`), words spread across the
- * full width (or packed on the left with `align="start"`). Each letter
- * (`data-title-char`) sits in its own mask so it can slide in. The size can be
- * changed from a parent with the `--wall-title-size` CSS variable.
- */
 export function WallTitle({
   title = WALL_TITLE,
   align = "spread",

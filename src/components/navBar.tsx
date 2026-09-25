@@ -7,7 +7,6 @@ const links = [
   { href: "/paintings", label: "Paintings" },
   { href: "/tickets", label: "Tickets" },
   { href: "/about", label: "About" },
-  // Guarded by the proxy: signed-out visitors land on /login.
   { href: "/account", label: "Account" },
 ] as const;
 

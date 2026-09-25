@@ -7,9 +7,6 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
-// Tables expected by Better Auth (user, session, account, verification).
-// Field names follow its core schema so the Drizzle adapter maps them as is.
-
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -42,7 +39,6 @@ export const session = pgTable(
   (table) => [index("session_user_id_idx").on(table.userId)],
 );
 
-/** Sign-in methods of a user: here only "credential" (email + hashed password). */
 export const account = pgTable(
   "account",
   {
@@ -67,7 +63,6 @@ export const account = pgTable(
   (table) => [index("account_user_id_idx").on(table.userId)],
 );
 
-/** Short-lived tokens (email verification, password reset…). */
 export const verification = pgTable(
   "verification",
   {
@@ -84,10 +79,6 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-/**
- * Artworks a user saved. The API is the source of truth for artworks, so only
- * their slug is stored here.
- */
 export const favorite = pgTable(
   "favorite",
   {

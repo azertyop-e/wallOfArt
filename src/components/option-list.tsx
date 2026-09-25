@@ -3,7 +3,6 @@
 import { countVisitors, formatPrice, OPTIONS } from "@/lib/tickets";
 import { useOrderStore } from "@/stores/order-store";
 
-/** Add-ons taken for the whole party, so they stay locked until a rate is picked. */
 export function OptionList({ className }: { className?: string }) {
   const quantities = useOrderStore((state) => state.quantities);
   const options = useOrderStore((state) => state.options);

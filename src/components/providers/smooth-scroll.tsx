@@ -22,7 +22,6 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
 
   const lenis = useLenis(() => ScrollTrigger.update());
 
-  // The preloader and the page transition hold the scroll while they cover the page.
   useEffect(() => {
     if (!lenis) return;
     if (locked) {

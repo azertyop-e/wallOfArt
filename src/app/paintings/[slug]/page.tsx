@@ -51,8 +51,6 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical: `/paintings/${artwork.slug}` },
-    // A page-level `openGraph` replaces the layout's one: repeat the shared
-    // fields. The artwork itself replaces the site's generated image.
     openGraph: {
       type: "article",
       siteName: SITE_NAME,

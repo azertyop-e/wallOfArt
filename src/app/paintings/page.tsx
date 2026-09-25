@@ -20,7 +20,6 @@ export async function generateMetadata({
   return {
     title: description ? `Paintings: ${description}` : "Paintings",
     description: "Browse every artwork in the museum's collection.",
-    // Filtered views are variations of the same list.
     alternates: { canonical: "/paintings" },
   };
 }

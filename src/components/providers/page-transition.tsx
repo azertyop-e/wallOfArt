@@ -44,7 +44,6 @@ export function usePageTransition() {
 const prefersReducedMotion = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** The internal link a click should navigate through, if the transition may take it over. */
 const transitionLinkOf = (event: MouseEvent) => {
   if (
     event.defaultPrevented ||
@@ -76,10 +75,6 @@ const titleCharsOf = (curtain: HTMLElement | null) =>
     curtain?.querySelectorAll("[data-title-char]") ?? [],
   );
 
-/**
- * Wraps the app and plays the page transition on every internal link click, so
- * pages keep using a plain `next/link`. `navigate` does the same from code.
- */
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -87,7 +82,6 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
 
   const curtain = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLDivElement>(null);
-  /** The pathname being left while a transition runs, null otherwise. */
   const leaving = useRef<string | null>(null);
   const leave = useRef<gsap.core.Timeline>(null);
   const covered = useRef(useAppStore.getState().isFirstRender);
@@ -158,7 +152,6 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
         { yPercent: 0, ease: "expo.out", stagger: 0.04 },
         TITLE_IN_AT,
       )
-      // Navigate as soon as the page is hidden: the new one loads while the title slides in.
       .call(() => router.push(href, { scroll: false }), [], LEAVE_DURATION);
   };
 
@@ -166,27 +159,22 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     const url = transitionLinkOf(event);
     if (!url || url.pathname === pathname || prefersReducedMotion()) return;
 
-    // Stops `next/link` from navigating right away: it bails out on a prevented click.
     event.preventDefault();
     navigate(`${url.pathname}${url.search}${url.hash}`);
   });
 
-  // Listened on <body>, which a click reaches before React's root listener on
-  // the document, and which also contains portals.
   useEffect(() => {
     const listener = (event: MouseEvent) => onLinkClick(event);
     document.body.addEventListener("click", listener);
     return () => document.body.removeEventListener("click", listener);
   }, []);
 
-  // The new page is committed once the pathname changes: reveal it.
   useEffect(() => {
     if (leaving.current === null || leaving.current === pathname) return;
     leaving.current = null;
 
     lenis?.scrollTo(0, { immediate: true, force: true });
 
-    // Let the title finish sliding in if the new page was quick to load.
     const title = leave.current;
     const delay = title ? title.duration() - title.time() : 0;
 
@@ -195,7 +183,6 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
         delay,
         defaults: { duration: ENTER_DURATION, ease: "expo.inOut" },
         onComplete: () => {
-          // Restarting Lenis also resizes it to the new page.
           useAppStore.getState().unlockScroll();
           ScrollTrigger.refresh();
         },
@@ -234,7 +221,6 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Wraps the routed pages: the part of the layout that drifts during a transition. */
 export function PageTransitionContent({
   children,
 }: {

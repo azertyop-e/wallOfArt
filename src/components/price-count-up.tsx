@@ -11,11 +11,6 @@ type PriceCountUpProps = {
   className?: string;
 };
 
-/**
- * A price that counts up from zero the first time it scrolls into view. The
- * static price is rendered on the server; GSAP only rewrites the visible copy,
- * screen readers read the hidden one.
- */
 export function PriceCountUp({
   price,
   delay = 0,

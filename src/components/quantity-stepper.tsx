@@ -21,7 +21,6 @@ export function QuantityStepper({
   const digit = useRef<HTMLSpanElement>(null);
   const previous = useRef(value);
 
-  // The new count rolls in from below when it grows, from above when it drops.
   useGSAP(
     () => {
       const direction = Math.sign(value - previous.current);

@@ -7,13 +7,10 @@ import { auth } from "@/lib/auth";
 
 export type AuthFormState = {
   error?: string;
-  /** Echoed back so the form keeps what the visitor typed after an error. */
   values?: { name?: string; email?: string };
 };
 
-/** Only same-site paths, so `?next=` can't send people to another website. */
 function safeRedirectPath(next: FormDataEntryValue | null) {
-  // Browsers read "//host" and "/\host" as another origin.
   return typeof next === "string" && /^\/(?![/\\])/.test(next)
     ? next
     : "/account";
@@ -38,8 +35,6 @@ export async function signUp(
   }
 
   try {
-    // Creates the user + its credential account, then signs in (the
-    // nextCookies plugin sets the session cookie on this response).
     await auth.api.signUpEmail({
       body: { name, email, password },
       headers: await headers(),

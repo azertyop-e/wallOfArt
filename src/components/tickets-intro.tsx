@@ -9,7 +9,6 @@ type TicketsIntroProps = {
   className?: string;
 };
 
-/** Entrance of the ticket page: the title letters, then the text around it. */
 export function TicketsIntro({ children, className }: TicketsIntroProps) {
   const root = useRef<HTMLDivElement>(null);
   const { onReveal } = usePageTransition();
@@ -23,7 +22,6 @@ export function TicketsIntro({ children, className }: TicketsIntroProps) {
       }
 
       const timeline = gsap
-        // Paused in its initial state until the page is visible.
         .timeline({ paused: true, defaults: { ease: "expo.out" } })
         .from("[data-title-char]", {
           yPercent: 110,

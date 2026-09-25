@@ -37,8 +37,6 @@ export function FavoriteList({ artworks }: FavoriteListProps) {
       ).matches;
       const next = frameOf(activeId);
 
-      // A frame leaves by raising its bottom edge while its top edge stays
-      // where it is, so a reveal cut short closes from where it stopped.
       const topOf = (frame: HTMLElement) =>
         Number(/inset\(([^%\s]+)%/.exec(frame.style.clipPath)?.[1] ?? 100);
       const leaving = frames.filter((frame) => frame !== next);
@@ -48,8 +46,6 @@ export function FavoriteList({ artworks }: FavoriteListProps) {
       current.current?.kill();
 
       if (next) {
-        // The new frame's top edge and the old frames' bottom edges move with
-        // the same duration and ease, so the two never overlap.
         const step = {
           duration: reduced ? 0 : FRAME_DURATION * 0.75,
           ease: REVEAL_EASE,

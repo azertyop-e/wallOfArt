@@ -46,10 +46,6 @@ export function filterArtworks(artworks: Artwork[], filters: Filters) {
   return artworks.filter((artwork) => matches(artwork, filters));
 }
 
-/**
- * Each option counts the artworks it would show combined with the other active
- * filters, so combinations leading to an empty result can be disabled.
- */
 export function getFilterGroups(
   artworks: Artwork[],
   filters: Filters,

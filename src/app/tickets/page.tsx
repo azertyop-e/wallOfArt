@@ -6,8 +6,6 @@ import { TicketList } from "@/components/ticket-list";
 import { TicketsIntro } from "@/components/tickets-intro";
 import { WallTitle } from "@/components/wall-title";
 
-// Nothing is fetched here and the order lives in the browser: the page is
-// prerendered once at build time (SSG) and served as static HTML.
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
@@ -19,7 +17,6 @@ export const metadata: Metadata = {
 
 export default function TicketsPage() {
   return (
-    // The bottom padding clears the order bar pinned over the page.
     <main className="min-h-svh px-gutter pt-page-top pb-[calc(var(--spacing-page-bottom)+10vh)]">
       <TicketsIntro className="mb-[12vh]">
         <p
@@ -43,7 +40,6 @@ export default function TicketsPage() {
       </TicketsIntro>
 
       <div className="flex flex-col gap-[12vh]">
-        {/* The rates follow the title in; the options wait for the scroll. */}
         <Reveal variant="items" delay={0.5}>
           <TicketList />
         </Reveal>

@@ -10,7 +10,6 @@ type NotFoundIntroProps = {
   className?: string;
 };
 
-/** Entrance of the 404 page: the title letters, the text, then the suggestions. */
 export function NotFoundIntro({ children, className }: NotFoundIntroProps) {
   const root = useRef<HTMLDivElement>(null);
   const { onReveal } = usePageTransition();
@@ -26,7 +25,6 @@ export function NotFoundIntro({ children, className }: NotFoundIntroProps) {
       const select = gsap.utils.selector(root);
 
       const timeline = gsap
-        // Paused in its initial state until the page is visible.
         .timeline({ paused: true, defaults: { ease: "expo.out" } })
         .from("[data-title-char]", {
           yPercent: 110,

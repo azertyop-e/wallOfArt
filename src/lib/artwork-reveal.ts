@@ -1,6 +1,5 @@
 import { gsap } from "@/lib/gsap";
 
-/** How far the image is zoomed past its resting scale before it settles. */
 const OVERSCAN = 1.12;
 
 export const FRAME_DURATION = 1.6;
@@ -10,15 +9,9 @@ const HIDE_DURATION = 0.35;
 export const REVEAL_EASE = "expo.out";
 export const HIDE_EASE = "power2.in";
 
-/** The mask the reveal runs between: hidden is collapsed onto the bottom edge. */
 export const MASK_HIDDEN = "inset(100% 0% 0% 0%)";
 export const MASK_SHOWN = "inset(0% 0% 0% 0%)";
 
-/**
- * Stagger presets, in pairs: a reveal runs one way and its exit unwinds it the
- * other way. `fromCenter` suits a row centred on screen like the home page
- * wall; `fromLeft` suits a list that reads from its left edge.
- */
 export const STAGGER = {
   fromCenter: { each: 0.08, from: "center" },
   toCenter: { each: 0.04, from: "edges" },

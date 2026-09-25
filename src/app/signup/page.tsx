@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 export default async function SignupPage({
   searchParams,
 }: PageProps<"/signup">) {
-  // Rendered per request (SSR): it reads the session cookie.
   if (await getSession()) redirect("/account");
 
   const { next } = await searchParams;

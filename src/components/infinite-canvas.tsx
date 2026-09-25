@@ -111,7 +111,6 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
       };
       gsap.ticker.add(tick);
 
-      // Zoom out slightly while the canvas is being moved (drag or wheel).
       let zoomedOut = false;
       const zoomOut = () => {
         if (zoomedOut) return;
@@ -124,9 +123,6 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
         gsap.to(planeEl, { scale: 1, duration: 0.8, ease: "power3.out" });
       };
 
-      // Drag with inertia. Move/up are listened on window so a drag continues
-      // outside the canvas; pointer capture is avoided because it would
-      // retarget the click away from the painting links.
       let pointer: {
         id: number;
         startX: number;
@@ -162,7 +158,6 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
         const dy = event.clientY - pointer.y;
         const elapsed = Math.max(event.timeStamp - pointer.time, 1);
 
-        // Speed normalized to px per 60fps frame, smoothed over a few events.
         pointer.velocityX =
           pointer.velocityX * 0.6 + (dx / elapsed) * 16.67 * 0.4;
         pointer.velocityY =
@@ -200,7 +195,6 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
         if (wheelTimeout === undefined) zoomIn();
       };
 
-      // A drag ending on a painting must not open it.
       const onClick = (event: MouseEvent) => {
         if (!dragged) return;
         event.preventDefault();
@@ -208,11 +202,9 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
         dragged = false;
       };
 
-      // Wheel has no end event: zoom back in once it has been idle a moment.
       let wheelTimeout: ReturnType<typeof setTimeout> | undefined;
 
       const onWheel = (event: WheelEvent) => {
-        // Let the browser handle pinch-to-zoom (ctrl + wheel).
         if (event.ctrlKey) return;
         event.preventDefault();
 
@@ -242,7 +234,6 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
       const onKeyUp = (event: KeyboardEvent) => keys.delete(event.key);
       const onBlur = () => keys.clear();
 
-      // Tabbing to a painting brings it to the center of the screen.
       const onFocusIn = (event: FocusEvent) => {
         const element = event.target as HTMLElement;
         const item = element.closest<HTMLElement>("[data-canvas-item]");
@@ -270,7 +261,6 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
       window.addEventListener("keyup", onKeyUp);
       window.addEventListener("blur", onBlur);
 
-      // Entrance: paintings are unmasked one after the other, in random order.
       const entrance = revealArtworks(
         gsap.utils.toArray<HTMLElement>("[data-canvas-reveal]"),
         {
@@ -297,8 +287,6 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
         window.removeEventListener("blur", onBlur);
       };
     },
-    // Filtering sends a new layout: tear down listeners and tweens before
-    // setting the canvas up again, otherwise they would pile up.
     { scope: root, dependencies: [layout], revertOnUpdate: true },
   );
 

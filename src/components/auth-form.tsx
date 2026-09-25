@@ -25,7 +25,6 @@ const modes = {
 
 type AuthFormProps = {
   mode: keyof typeof modes;
-  /** Where to go once signed in, forwarded from the `?next=` search param. */
   next?: string;
 };
 
@@ -108,8 +107,6 @@ function Field({ label, name, type = "text", ...inputProps }: FieldProps) {
     <label className="flex flex-col gap-2">
       <span className="text-[10px] leading-3 text-muted">{label}</span>
       <input
-        // Remount with the echoed value after a failed submission: React
-        // resets uncontrolled form fields once the action completes.
         key={inputProps.defaultValue}
         name={name}
         type={type}

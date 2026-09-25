@@ -15,7 +15,6 @@ import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import { WALL_IMAGE_ZOOM, WALL_SIZE } from "@/lib/wall";
 import { useAppStore } from "@/stores/app-store";
 
-/** Stands in for the home page wall when its paintings could not be fetched. */
 const FALLBACK_WALL = [
   "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/1920px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
   "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/2560px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
@@ -25,7 +24,6 @@ const FALLBACK_WALL = [
   "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg/2560px-Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg",
 ];
 
-/** The rest of the ring: paintings that only ever turn, and close before the line. */
 const FILLER_IMAGES = [
   "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg/1920px-Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg",
   "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg/2560px-Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg",
@@ -41,10 +39,6 @@ const WAITING_AT = 90;
 const MAX_EXTRA_WAIT = 5;
 const LIFT_DURATION = 1.5;
 
-/**
- * Off the home page the ring has no wall to land on, so it sweeps off one side
- * instead: -1 exits to the left, 1 to the right.
- */
 const EXIT_DIRECTION = -1;
 const EXIT_START = 0.6;
 const EXIT_STAGGER = 0.07;
@@ -118,7 +112,6 @@ const restingStyle = (index: number): React.CSSProperties => {
   };
 };
 
-/** Where the home page wall sits on screen, or null when the page has no wall. */
 const wallBoxes = (): Box[] | null => {
   const wall = gsap.utils.toArray<HTMLElement>(WALL_FRAMES);
   if (wall.length < WALL_SIZE) return null;
@@ -198,7 +191,6 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
 
       const orbit = { angle: 0, speed: 0 };
       const line = { progress: 0 };
-      /** Per card, how far it has slid toward the exit side. */
       const exits = ring.map(() => ({ x: 0 }));
       let boost = 0;
       let radius = 0;
@@ -376,7 +368,6 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
           )
           .to(orbit, { speed: 0, duration: 1.8, ease: "power2.out" }, 0);
 
-        /** The shared tail: the counter and the captions leave, then the backdrop lifts. */
         const outro = (at: number) =>
           timeline
             .to(
@@ -401,8 +392,6 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
             )
             .call(completeFirstRender, [], "lift+=0.9");
 
-        // On the home page the ring lines up on the wall and hands its paintings
-        // over to the very same ones underneath.
         if (wallBoxes()) {
           const lineFrames = cards
             .map((card, index) => ({ card, slot: cardSlots[index] }))
@@ -435,8 +424,6 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
           return;
         }
 
-        // Anywhere else there is no wall to land on: the whole ring slides off the
-        // same side, the cards nearest that edge leaving first.
         const distance =
           EXIT_DIRECTION * (window.innerWidth / 2 + radius + ringSize.width);
 
@@ -454,7 +441,6 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
             );
           });
 
-        // The backdrop only lifts once the last card has cleared the edge.
         outro(
           EXIT_START + (exits.length - 1) * EXIT_STAGGER + EXIT_DURATION - 1,
         );
