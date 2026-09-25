@@ -44,8 +44,7 @@ export function FavoriteButton({ slug }: FavoriteButtonProps) {
       .then((data: FavoriteState | null) => {
         if (data) setState(data);
       })
-      .catch(() => {
-      });
+      .catch(() => {});
 
     return () => controller.abort();
   }, [slug]);
@@ -79,8 +78,7 @@ export function FavoriteButton({ slug }: FavoriteButtonProps) {
       try {
         const saved = await setFavorite(slug, next);
         startTransition(() => setState({ signedIn: true, favorited: saved }));
-      } catch {
-      }
+      } catch {}
     });
   };
 
