@@ -132,6 +132,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
 
     leaving.current = pathname;
     covered.current = true;
+    useAppStore.getState().lockScroll();
     router.prefetch(href);
 
     leave.current = gsap
@@ -186,7 +187,8 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
         delay,
         defaults: { duration: ENTER_DURATION, ease: "expo.inOut" },
         onComplete: () => {
-          lenis?.resize();
+          // Restarting Lenis also resizes it to the new page.
+          useAppStore.getState().unlockScroll();
           ScrollTrigger.refresh();
         },
       })

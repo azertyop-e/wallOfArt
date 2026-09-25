@@ -40,3 +40,8 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
+
+/* Holds the native scroll from the server-rendered preloader on, before Lenis mounts. */
+html:has([data-preloader]) {
+  overflow: clip;
+}

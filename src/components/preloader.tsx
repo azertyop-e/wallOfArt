@@ -1,6 +1,5 @@
 "use client";
 
-import { useLenis } from "lenis/react";
 import { useEffect, useRef, useState } from "react";
 import { ArtworkImage } from "@/components/artwork-image";
 import {
@@ -181,16 +180,13 @@ function PreloaderScreen({ ring, onDone }: PreloaderScreenProps) {
   const backdrop = useRef<HTMLDivElement>(null);
   const counter = useRef<HTMLSpanElement>(null);
   const completeFirstRender = useAppStore((state) => state.completeFirstRender);
-  const lenis = useLenis();
+  const lockScroll = useAppStore((state) => state.lockScroll);
+  const unlockScroll = useAppStore((state) => state.unlockScroll);
 
   useEffect(() => {
-    if (!lenis) return;
-    lenis.stop();
-    return () => {
-      lenis.start();
-      lenis.resize();
-    };
-  }, [lenis]);
+    lockScroll();
+    return unlockScroll;
+  }, [lockScroll, unlockScroll]);
 
   useGSAP(
     () => {

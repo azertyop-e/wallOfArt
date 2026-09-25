@@ -3,9 +3,11 @@
 import { type LenisRef, ReactLenis, useLenis } from "lenis/react";
 import { useEffect, useRef } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { useAppStore } from "@/stores/app-store";
 
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<LenisRef>(null);
+  const locked = useAppStore((state) => state.scrollLocks > 0);
 
   useEffect(() => {
     const update = (time: number) => {
@@ -18,7 +20,18 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     return () => gsap.ticker.remove(update);
   }, []);
 
-  useLenis(() => ScrollTrigger.update());
+  const lenis = useLenis(() => ScrollTrigger.update());
+
+  // The preloader and the page transition hold the scroll while they cover the page.
+  useEffect(() => {
+    if (!lenis) return;
+    if (locked) {
+      lenis.stop();
+      return;
+    }
+    lenis.start();
+    lenis.resize();
+  }, [lenis, locked]);
 
   return (
     <ReactLenis root ref={lenisRef} options={{ autoRaf: false }}>
