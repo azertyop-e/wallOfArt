@@ -21,6 +21,7 @@ const ENTER_DURATION = 1.1;
 const TITLE_IN_AT = 0.4;
 const LIFT_AT = 0.3;
 const DRIFT = "12vh";
+const REVEAL_DELAY = 0.4;
 
 type PageTransitionContextValue = {
   navigate: (href: string) => void;
@@ -92,19 +93,25 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   const covered = useRef(useAppStore.getState().isFirstRender);
   const waiting = useRef(new Set<() => void>());
 
+  const uncovering = useRef<gsap.core.Tween>(null);
+
   const uncover = () => {
-    covered.current = false;
-    const callbacks = [...waiting.current];
-    waiting.current.clear();
-    for (const callback of callbacks) callback();
+    uncovering.current?.kill();
+    uncovering.current = gsap.delayedCall(REVEAL_DELAY, () => {
+      uncovering.current = null;
+      covered.current = false;
+      const callbacks = [...waiting.current];
+      waiting.current.clear();
+      for (const callback of callbacks) callback();
+    });
   };
 
   const onUncover = useEffectEvent(uncover);
 
   useEffect(
     () =>
-      useAppStore.subscribe((state) => {
-        if (!state.isFirstRender) onUncover();
+      useAppStore.subscribe((state, previous) => {
+        if (previous.isFirstRender && !state.isFirstRender) onUncover();
       }),
     [],
   );
@@ -132,6 +139,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
 
     leaving.current = pathname;
     covered.current = true;
+    uncovering.current?.kill();
     useAppStore.getState().lockScroll();
     router.prefetch(href);
 

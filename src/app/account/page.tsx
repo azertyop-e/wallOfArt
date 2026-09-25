@@ -25,7 +25,7 @@ export default async function AccountPage() {
   return (
     <main className="min-h-svh px-gutter pt-page-top pb-page-bottom">
       <AccountIntro>
-        <h1 className="relative z-10 mb-[8vh] text-white mix-blend-difference">
+        <h1 className="relative z-10 mb-[8vh]">
           <WallTitle title="Account" align="start" />
         </h1>
 

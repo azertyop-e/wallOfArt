@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { ArtworkImage } from "@/components/artwork-image";
+import { usePageTransition } from "@/components/providers/page-transition";
+import { revealArtworks } from "@/lib/artwork-reveal";
 import type { CanvasLayout } from "@/lib/canvas-layout";
 import { gsap, useGSAP } from "@/lib/gsap";
 
@@ -36,6 +38,7 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
   const root = useRef<HTMLDivElement>(null);
   const plane = useRef<HTMLUListElement>(null);
   const cellProbe = useRef<HTMLDivElement>(null);
+  const { onReveal } = usePageTransition();
 
   useGSAP(
     () => {
@@ -267,16 +270,18 @@ export function InfiniteCanvas({ layout }: InfiniteCanvasProps) {
       window.addEventListener("keyup", onKeyUp);
       window.addEventListener("blur", onBlur);
 
-      // Entrance: paintings pop in one after the other, in random order.
-      gsap.from("[data-canvas-reveal]", {
-        autoAlpha: 0,
-        scale: 0.6,
-        duration: 1.4,
-        ease: "expo.out",
-        stagger: { amount: 0.8, from: "random" },
-      });
+      // Entrance: paintings are unmasked one after the other, in random order.
+      const entrance = revealArtworks(
+        gsap.utils.toArray<HTMLElement>("[data-canvas-reveal]"),
+        {
+          timeline: gsap.timeline({ paused: true }),
+          stagger: { amount: 0.8, from: "random" },
+        },
+      );
+      const stopWaiting = onReveal(() => entrance.play());
 
       return () => {
+        stopWaiting();
         gsap.ticker.remove(tick);
         clearTimeout(wheelTimeout);
         resizeObserver.disconnect();

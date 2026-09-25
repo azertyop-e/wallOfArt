@@ -1,5 +1,8 @@
 "use client";
 
+import { useRef } from "react";
+import { gsap, useGSAP } from "@/lib/gsap";
+
 type QuantityStepperProps = {
   label: string;
   value: number;
@@ -15,6 +18,30 @@ export function QuantityStepper({
   disabled,
   onChange,
 }: QuantityStepperProps) {
+  const digit = useRef<HTMLSpanElement>(null);
+  const previous = useRef(value);
+
+  // The new count rolls in from below when it grows, from above when it drops.
+  useGSAP(
+    () => {
+      const direction = Math.sign(value - previous.current);
+      previous.current = value;
+      if (
+        direction === 0 ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        return;
+      }
+
+      gsap.fromTo(
+        digit.current,
+        { yPercent: direction * 100 },
+        { yPercent: 0, duration: 0.5, ease: "expo.out", overwrite: true },
+      );
+    },
+    { dependencies: [value] },
+  );
+
   const buttonClass =
     "size-6 cursor-pointer leading-none transition-colors duration-300 hover:text-foreground disabled:cursor-default disabled:text-black/20";
 
@@ -31,11 +58,13 @@ export function QuantityStepper({
       </button>
 
       <output
-        className={
-          value === 0 ? "w-4 text-center text-muted" : "w-4 text-center"
-        }
+        className={`block w-4 overflow-clip text-center transition-colors duration-300 ${
+          value === 0 ? "text-muted" : ""
+        }`}
       >
-        {value}
+        <span ref={digit} className="block">
+          {value}
+        </span>
       </output>
 
       <button
