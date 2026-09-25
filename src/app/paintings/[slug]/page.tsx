@@ -5,6 +5,7 @@ import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkImage } from "@/components/artwork-image";
 import { ArtworkPager } from "@/components/artwork-pager";
 import { FavoriteButton } from "@/components/favorite-button";
+import { HtmlContent } from "@/components/html-content";
 import { Parallax } from "@/components/parallax";
 import { Reveal } from "@/components/reveal";
 import {
@@ -134,9 +135,9 @@ export default async function PaintingPage({
         <div className="mt-16 flex flex-col gap-16 lg:flex-row lg:justify-between lg:gap-gutter">
           {artwork.description && (
             <Reveal variant="lines" className="lg:span-w-3">
-              <div
+              <HtmlContent
+                html={artwork.description}
                 className="max-w-[70ch] space-y-4 text-sm leading-relaxed [&_em]:italic [&_i]:italic [&_strong]:font-medium"
-                dangerouslySetInnerHTML={{ __html: artwork.description }}
               />
             </Reveal>
           )}

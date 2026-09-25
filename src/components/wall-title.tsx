@@ -28,13 +28,11 @@ export function WallTitle({
       >
         {title.split(" ").map((word) => (
           <span key={word} className="flex overflow-clip pt-[0.04em]">
-            {[...word].map((char, index) => (
-              <span
-                // biome-ignore lint/suspicious/noArrayIndexKey: letters of a static word never reorder.
-                key={index}
-                data-title-char
-                className="inline-block"
-              >
+            {Array.from(word, (char, position) => ({
+              char,
+              id: `${word}-${position}`,
+            })).map(({ char, id }) => (
+              <span key={id} data-title-char className="inline-block">
                 {char}
               </span>
             ))}
