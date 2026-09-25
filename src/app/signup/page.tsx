@@ -5,7 +5,7 @@ import { AuthPage } from "@/components/auth-page";
 import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = {
-  title: "Sign up — Museum",
+  title: "Sign up",
   description: "Create your Wall of Art account.",
   robots: { index: false },
 };

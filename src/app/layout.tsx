@@ -11,6 +11,7 @@ import {
 } from "@/components/providers/page-transition";
 import { SmoothScroll } from "@/components/providers/smooth-scroll";
 import { getArtworks } from "@/lib/api";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { pickWall } from "@/lib/wall";
 
 const clashDisplay = localFont({
@@ -27,16 +28,27 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Museum",
-  description: "A creative museum to explore by scrolling.",
+  metadataBase: SITE_URL,
+  title: {
+    default: `${SITE_NAME} — Museum of painting`,
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
-/** The home page wall, so the preloader's line hands over to the very same paintings. */
 async function getWallImages() {
   try {
     return pickWall(await getArtworks()).map((artwork) => artwork.image);
   } catch {
-    // The preloader falls back to its own paintings.
     return [];
   }
 }

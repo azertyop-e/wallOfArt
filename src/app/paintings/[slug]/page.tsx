@@ -15,6 +15,7 @@ import {
   getRelatedArtworks,
   getTypeLabel,
 } from "@/lib/api";
+import { SITE_NAME } from "@/lib/site";
 
 export const revalidate = 3600;
 
@@ -36,20 +37,35 @@ export async function generateMetadata({
   const { slug } = await params;
   const artwork = await getArtwork(slug);
 
-  if (!artwork) return { title: "Painting not found — Museum" };
+  if (!artwork) return { title: "Painting not found" };
 
-  const title = `${artwork.title}${artwork.artist ? `, ${artwork.artist}` : ""} — Museum`;
-  const description = artwork.description
-    ? `${stripHtml(artwork.description).slice(0, 155)}…`
+  const title = `${artwork.title}${artwork.artist ? `, ${artwork.artist}` : ""}`;
+  const text = artwork.description && stripHtml(artwork.description);
+  const description =
+    text && text.length > 155 ? `${text.slice(0, 155).trimEnd()}…` : text;
+  const images = artwork.image
+    ? [{ url: artwork.image, alt: title }]
     : undefined;
 
   return {
     title,
     description,
+    alternates: { canonical: `/paintings/${artwork.slug}` },
+    // A page-level `openGraph` replaces the layout's one: repeat the shared
+    // fields. The artwork itself replaces the site's generated image.
     openGraph: {
+      type: "article",
+      siteName: SITE_NAME,
+      locale: "en_US",
       title,
       description,
-      images: artwork.image ? [{ url: artwork.image }] : undefined,
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images,
     },
   };
 }

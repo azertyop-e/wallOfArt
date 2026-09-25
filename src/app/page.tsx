@@ -6,9 +6,8 @@ import { getArtworks } from "@/lib/api";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Wall of Art — Museum",
-  description:
-    "Wall of Art, a museum of painting: discover masterpieces from every era.",
+  // The layout's default title and description already describe the home page.
+  alternates: { canonical: "/" },
 };
 
 export default async function Home() {

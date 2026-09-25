@@ -9,7 +9,7 @@ import { getFavoriteArtworks } from "@/lib/favorites";
 import { requireUser } from "@/lib/session";
 
 export const metadata: Metadata = {
-  title: "Account — Museum",
+  title: "Account",
   robots: { index: false },
 };
 

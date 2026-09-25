@@ -10,7 +10,8 @@ import { WallTitle } from "@/components/wall-title";
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
-  title: "Tickets — Museum",
+  title: "Tickets",
+  alternates: { canonical: "/tickets" },
   description:
     "Book your visit to the Wall of Art: admission rates, group rate, audio guide and printed guide, with a running total.",
 };
